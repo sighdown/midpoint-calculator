@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f5f7fa" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0b0d11" media="(prefers-color-scheme: dark)">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon-192.png">
+  <title>중간값 계산기</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg:#f5f7fa; --card:#fff; --text:#111318; --sub:#5c6470;
+      --border:#cbd2dc; --input:#fff; --accent:#1267e8; --accentSoft:#e9f1ff;
+      --ok:#08783f; --okSoft:#e6f7ee; --warn:#9a5a00; --warnSoft:#fff4df;
+      --shadow:0 10px 30px rgba(0,0,0,.08);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:#0b0d11; --card:#15181e; --text:#f4f6f8; --sub:#aeb6c2;
+        --border:#3b424d; --input:#0f1217; --accent:#7fb0ff; --accentSoft:#182943;
+        --ok:#63dfa0; --okSoft:#123326; --warn:#ffd17a; --warnSoft:#3c2c11;
+        --shadow:0 14px 36px rgba(0,0,0,.34);
+      }
+    }
+    *{box-sizing:border-box}
+    html,body{min-height:100%;margin:0}
+    body{
+      background:var(--bg); color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR","Segoe UI",Roboto,Arial,sans-serif;
+      -webkit-font-smoothing:antialiased;
+      overscroll-behavior:none;
+    }
+    .wrap{
+      width:min(100%,560px); margin:0 auto; min-height:100vh;
+      padding:max(22px,env(safe-area-inset-top)) 16px max(28px,env(safe-area-inset-bottom));
+      display:flex; align-items:center;
+    }
+    .card{
+      width:100%; background:var(--card); border:1px solid var(--border);
+      border-radius:24px; box-shadow:var(--shadow); padding:22px 18px 18px;
+    }
+    h1{margin:0;font-size:clamp(28px,7vw,38px);line-height:1.1;letter-spacing:-.03em;font-weight:900}
+    .desc{margin:10px 0 22px;color:var(--sub);font-size:16px;line-height:1.5;font-weight:650}
+    .field{margin-top:16px}
+    label{display:block;margin:0 0 8px 4px;color:var(--sub);font-size:16px;font-weight:850}
+    input{
+      width:100%; min-height:76px; border:2px solid var(--border); border-radius:18px;
+      background:var(--input); color:var(--text); padding:10px 16px;
+      font-size:clamp(30px,9vw,44px); line-height:1; font-weight:900; letter-spacing:.01em;
+      outline:none; caret-color:var(--accent); transition:border-color .15s,box-shadow .15s;
+    }
+    input:focus{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 24%,transparent)}
+    input::placeholder{color:var(--sub);opacity:.55}
+    .result{
+      margin-top:20px;padding:20px 16px;border-radius:20px;border:2px solid var(--accent);
+      background:var(--accentSoft);text-align:center;
+    }
+    .result-label{color:var(--sub);font-size:16px;font-weight:850;margin-bottom:6px}
+    .result-value{
+      min-height:1.15em;font-size:clamp(44px,13vw,68px);line-height:1.1;font-weight:950;
+      letter-spacing:-.03em;word-break:break-all;user-select:all;-webkit-user-select:all;
+    }
+    .status{
+      min-height:50px;margin-top:12px;padding:12px 14px;border-radius:14px;display:flex;
+      align-items:center;justify-content:center;text-align:center;font-size:15px;line-height:1.35;
+      font-weight:850;color:var(--sub);
+    }
+    .status.ok{color:var(--ok);background:var(--okSoft)}
+    .status.warn{color:var(--warn);background:var(--warnSoft)}
+    .actions{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
+    button{
+      min-height:54px;border-radius:15px;border:1px solid var(--border);background:var(--card);
+      color:var(--text);font-size:17px;font-weight:850;cursor:pointer;-webkit-tap-highlight-color:transparent
+    }
+    button:active{transform:scale(.99)}
+    .foot{margin:14px 2px 0;text-align:center;color:var(--sub);font-size:13px;line-height:1.45;font-weight:650}
+    @media (max-height:690px){.wrap{align-items:flex-start}.card{margin-top:4px}input{min-height:66px}.result{padding:14px 12px}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <section class="card">
+    <h1>중간값 계산기</h1>
+    <p class="desc">두 값을 입력하면 중간값을 즉시 계산하고 자동 복사합니다.</p>
+
+    <div class="field">
+      <label for="v1">값 1</label>
+      <input id="v1" type="text" inputmode="decimal" enterkeyhint="next"
+             autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="첫 번째 값">
+    </div>
+
+    <div class="field">
+      <label for="v2">값 2</label>
+      <input id="v2" type="text" inputmode="decimal" enterkeyhint="done"
+             autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="두 번째 값">
+    </div>
+
+    <div class="result" aria-live="polite">
+      <div class="result-label">중간값</div>
+      <div id="result" class="result-value">—</div>
+    </div>
+
+    <div id="status" class="status" aria-live="polite">첫 번째 값을 입력하세요.</div>
+
+    <div class="actions"><button id="reset" type="button">초기화</button></div>
+
+    <p class="foot">값 1 입력 후 약 0.9초 멈추면 값 2로 이동합니다.<br>결과를 누르면 수동 복사도 됩니다.</p>
+  </section>
+</main>
+
+<script>
+(() => {
+  'use strict';
+
+  const v1 = document.getElementById('v1');
+  const v2 = document.getElementById('v2');
+  const result = document.getElementById('result');
+  const status = document.getElementById('status');
+  const reset = document.getElementById('reset');
+
+  let moveTimer = null;
+  let statusTimer = null;
+  let lastCopied = '';
+
+  const clean = s => String(s ?? '').trim().replaceAll(',', '').replace(/\s+/g,'');
+  function parseNum(s){
+    const c = clean(s);
+    if(!c || c==='-' || c==='.' || c==='-.') return null;
+    const n = Number(c);
+    return Number.isFinite(n) ? n : null;
+  }
+  function fmt(n){
+    const r = Math.abs(n) < 1e-12 ? 0 : Number(n.toPrecision(15));
+    return new Intl.NumberFormat('ko-KR',{maximumFractionDigits:12,useGrouping:true}).format(r);
+  }
+  function show(msg,type='',hold=0){
+    clearTimeout(statusTimer);
+    status.textContent=msg;
+    status.className='status'+(type?' '+type:'');
+    if(hold>0){
+      statusTimer=setTimeout(()=>{
+        status.textContent='새 값을 입력하면 자동으로 다시 계산됩니다.';
+        status.className='status';
+      },hold);
+    }
+  }
+
+  function fallbackCopy(text){
+    try{
+      const ta=document.createElement('textarea');
+      ta.value=text; ta.readOnly=true;
+      ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta);
+      ta.select(); ta.setSelectionRange(0,ta.value.length);
+      const ok=document.execCommand('copy');
+      ta.remove();
+      return ok;
+    }catch(e){return false}
+  }
+
+  async function copyText(text){
+    if(!text || text===lastCopied) return true;
+    let ok=false;
+    if(navigator.clipboard && window.isSecureContext){
+      try{ await navigator.clipboard.writeText(text); ok=true; }catch(e){}
+    }
+    if(!ok) ok=fallbackCopy(text);
+    if(ok){
+      lastCopied=text;
+      show('✓ '+text+' 복사됨','ok',1700);
+      if(navigator.vibrate) navigator.vibrate(25);
+      return true;
+    }
+    show('중간값은 계산됐지만 자동 복사가 차단됐습니다. 결과를 눌러 복사하세요.','warn',3200);
+    return false;
+  }
+
+  function calc(){
+    const a=parseNum(v1.value), b=parseNum(v2.value);
+    if(a===null || b===null){
+      result.textContent='—';
+      show(a===null?'첫 번째 값을 입력하세요.':'두 번째 값을 입력하세요.');
+      return;
+    }
+    const m=(a+b)/2;
+    result.textContent=fmt(m);
+    copyText(String(Number(m.toPrecision(15))));
+  }
+
+  function scheduleNext(){
+    clearTimeout(moveTimer);
+    if(parseNum(v1.value)===null){show('첫 번째 값을 입력하세요.');return}
+    show('입력이 끝나면 자동으로 값 2로 이동합니다.');
+    moveTimer=setTimeout(()=>{
+      v2.focus({preventScroll:true}); v2.select();
+      show('두 번째 값을 입력하세요.');
+    },900);
+  }
+
+  v1.addEventListener('input',()=>{lastCopied='';result.textContent='—';scheduleNext()});
+  v2.addEventListener('input',()=>{lastCopied='';calc()});
+
+  v1.addEventListener('keydown',e=>{
+    if(e.key==='Enter'){
+      e.preventDefault(); clearTimeout(moveTimer);
+      if(parseNum(v1.value)!==null){v2.focus();v2.select();show('두 번째 값을 입력하세요.')}
+    }
+  });
+  v2.addEventListener('keydown',e=>{
+    if(e.key==='Enter'){e.preventDefault();calc();v2.blur()}
+  });
+
+  reset.addEventListener('click',()=>{
+    clearTimeout(moveTimer); lastCopied='';
+    v1.value=''; v2.value=''; result.textContent='—';
+    show('첫 번째 값을 입력하세요.');
+    v1.focus({preventScroll:true});
+  });
+
+  result.addEventListener('click',()=>{
+    const a=parseNum(v1.value), b=parseNum(v2.value);
+    if(a!==null && b!==null){
+      lastCopied='';
+      const m=(a+b)/2;
+      copyText(String(Number(m.toPrecision(15))));
+    }
+  });
+
+  function focusFirst(){
+    setTimeout(()=>{ if(!v1.value && !v2.value){v1.focus({preventScroll:true});v1.select()} },180);
+  }
+  window.addEventListener('pageshow',focusFirst);
+
+  if('serviceWorker' in navigator){
+    window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));
+  }
+})();
+</script>
+</body>
+</html>
