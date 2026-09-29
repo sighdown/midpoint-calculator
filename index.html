@@ -12,83 +12,110 @@
   <link rel="icon" href="icon-192.png">
   <title>중간값 계산기</title>
   <style>
-    :root {
-      color-scheme: light dark;
-      --bg:#f5f7fa; --card:#fff; --text:#111318; --sub:#5c6470;
-      --border:#cbd2dc; --input:#fff; --accent:#1267e8; --accentSoft:#e9f1ff;
-      --ok:#08783f; --okSoft:#e6f7ee; --warn:#9a5a00; --warnSoft:#fff4df;
+    :root{
+      color-scheme:light dark;
+      --bg:#f5f7fa;--card:#fff;--text:#111318;--sub:#5c6470;
+      --border:#cbd2dc;--input:#fff;--accent:#1267e8;--accentSoft:#e9f1ff;
+      --ok:#08783f;--okSoft:#e6f7ee;--warn:#9a5a00;--warnSoft:#fff4df;
       --shadow:0 10px 30px rgba(0,0,0,.08);
     }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg:#0b0d11; --card:#15181e; --text:#f4f6f8; --sub:#aeb6c2;
-        --border:#3b424d; --input:#0f1217; --accent:#7fb0ff; --accentSoft:#182943;
-        --ok:#63dfa0; --okSoft:#123326; --warn:#ffd17a; --warnSoft:#3c2c11;
+    @media(prefers-color-scheme:dark){
+      :root{
+        --bg:#0b0d11;--card:#15181e;--text:#f4f6f8;--sub:#aeb6c2;
+        --border:#3b424d;--input:#0f1217;--accent:#7fb0ff;--accentSoft:#182943;
+        --ok:#63dfa0;--okSoft:#123326;--warn:#ffd17a;--warnSoft:#3c2c11;
         --shadow:0 14px 36px rgba(0,0,0,.34);
       }
     }
     *{box-sizing:border-box}
     html,body{min-height:100%;margin:0}
     body{
-      background:var(--bg); color:var(--text);
+      background:var(--bg);color:var(--text);
       font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR","Segoe UI",Roboto,Arial,sans-serif;
-      -webkit-font-smoothing:antialiased;
-      overscroll-behavior:none;
+      -webkit-font-smoothing:antialiased;overscroll-behavior:none;
     }
     .wrap{
-      width:min(100%,560px); margin:0 auto; min-height:100vh;
+      width:min(100%,560px);margin:0 auto;min-height:100vh;
       padding:max(22px,env(safe-area-inset-top)) 16px max(28px,env(safe-area-inset-bottom));
-      display:flex; align-items:center;
+      display:flex;align-items:center;
     }
     .card{
-      width:100%; background:var(--card); border:1px solid var(--border);
-      border-radius:24px; box-shadow:var(--shadow); padding:22px 18px 18px;
+      width:100%;background:var(--card);border:1px solid var(--border);
+      border-radius:24px;box-shadow:var(--shadow);padding:22px 18px 18px;
     }
     h1{margin:0;font-size:clamp(28px,7vw,38px);line-height:1.1;letter-spacing:-.03em;font-weight:900}
-    .desc{margin:10px 0 22px;color:var(--sub);font-size:16px;line-height:1.5;font-weight:650}
+    .desc{margin:10px 0 22px;color:var(--sub);font-size:16px;line-height:1.45;font-weight:700}
     .field{margin-top:16px}
     label{display:block;margin:0 0 8px 4px;color:var(--sub);font-size:16px;font-weight:850}
     input{
-      width:100%; min-height:76px; border:2px solid var(--border); border-radius:18px;
-      background:var(--input); color:var(--text); padding:10px 16px;
-      font-size:clamp(30px,9vw,44px); line-height:1; font-weight:900; letter-spacing:.01em;
-      outline:none; caret-color:var(--accent); transition:border-color .15s,box-shadow .15s;
+      width:100%;min-height:76px;border:2px solid var(--border);border-radius:18px;
+      background:var(--input);color:var(--text);padding:10px 16px;
+      font-size:clamp(30px,9vw,44px);line-height:1;font-weight:900;letter-spacing:.01em;
+      outline:none;caret-color:var(--accent);transition:border-color .15s,box-shadow .15s;
     }
     input:focus{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 24%,transparent)}
     input::placeholder{color:var(--sub);opacity:.55}
     .result{
-      margin-top:20px;padding:20px 16px;border-radius:20px;border:2px solid var(--accent);
+      margin-top:20px;padding:18px 16px;border-radius:20px;border:2px solid var(--accent);
       background:var(--accentSoft);text-align:center;cursor:pointer;
       -webkit-tap-highlight-color:transparent;transition:transform .08s ease,filter .12s ease;
     }
     .result:active{transform:scale(.985);filter:brightness(.96)}
-    .result-label{color:var(--sub);font-size:16px;font-weight:850;margin-bottom:6px}
+    .result-label{color:var(--sub);font-size:16px;font-weight:900;margin-bottom:6px}
     .result-value{
       min-height:1.15em;font-size:clamp(44px,13vw,68px);line-height:1.1;font-weight:950;
       letter-spacing:-.03em;word-break:break-all;user-select:all;-webkit-user-select:all;
     }
+    .quarters{
+      display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;
+    }
+    .quarter{
+      border:1px solid var(--border);border-radius:17px;padding:13px 10px 10px;
+      background:var(--input);text-align:center;min-width:0;
+    }
+    .q-label{color:var(--sub);font-size:14px;font-weight:900}
+    .q-value{
+      margin:5px 0 10px;font-size:clamp(23px,7vw,34px);line-height:1.15;font-weight:950;
+      letter-spacing:-.025em;overflow-wrap:anywhere;min-height:1.2em;
+      user-select:all;-webkit-user-select:all;
+    }
+    .copy-btn{
+      width:100%;min-height:44px;border-radius:12px;border:1px solid var(--accent);
+      background:var(--accentSoft);color:var(--text);font-size:15px;font-weight:900;
+      cursor:pointer;-webkit-tap-highlight-color:transparent;
+    }
+    .copy-btn:disabled{opacity:.45;cursor:default}
+    .copy-btn:not(:disabled):active{transform:scale(.98)}
     .status{
-      min-height:50px;margin-top:12px;padding:12px 14px;border-radius:14px;display:flex;
-      align-items:center;justify-content:center;text-align:center;font-size:15px;line-height:1.35;
+      min-height:46px;margin-top:10px;padding:10px 12px;border-radius:14px;display:flex;
+      align-items:center;justify-content:center;text-align:center;font-size:15px;line-height:1.3;
       font-weight:850;color:var(--sub);
     }
     .status.ok{color:var(--ok);background:var(--okSoft)}
     .status.warn{color:var(--warn);background:var(--warnSoft)}
-    .actions{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
-    button{
+    .actions{display:grid;grid-template-columns:1fr;gap:10px;margin-top:8px}
+    .reset-btn{
       min-height:54px;border-radius:15px;border:1px solid var(--border);background:var(--card);
       color:var(--text);font-size:17px;font-weight:850;cursor:pointer;-webkit-tap-highlight-color:transparent
     }
-    button:active{transform:scale(.99)}
-    .foot{margin:14px 2px 0;text-align:center;color:var(--sub);font-size:13px;line-height:1.45;font-weight:650}
-    @media (max-height:690px){.wrap{align-items:flex-start}.card{margin-top:4px}input{min-height:66px}.result{padding:14px 12px}}
+    .reset-btn:active{transform:scale(.99)}
+    .foot{
+      margin:12px 2px 0;text-align:center;color:var(--sub);
+      font-size:13px;line-height:1.35;font-weight:700;
+    }
+    @media(max-width:380px){
+      .quarters{grid-template-columns:1fr}
+    }
+    @media(max-height:690px){
+      .wrap{align-items:flex-start}.card{margin-top:4px}input{min-height:66px}.result{padding:14px 12px}
+    }
   </style>
 </head>
 <body>
 <main class="wrap">
   <section class="card">
     <h1>중간값 계산기</h1>
-    <p class="desc">두 값을 입력한 뒤 중간값 칸을 터치하면 계산하고 자동 복사합니다.</p>
+    <p class="desc">두 값을 입력하고 중간값 칸을 터치하세요.</p>
 
     <div class="field">
       <label for="v1">값 1</label>
@@ -102,16 +129,29 @@
              autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="두 번째 값">
     </div>
 
-    <div id="resultBox" class="result" role="button" tabindex="0" aria-label="중간값 계산하기" aria-live="polite">
+    <div id="resultBox" class="result" role="button" tabindex="0" aria-label="중간값 계산하기">
       <div class="result-label">중간값 · 터치해서 계산</div>
       <div id="result" class="result-value">터치</div>
     </div>
 
-    <div id="status" class="status" aria-live="polite">값 1과 값 2를 입력한 뒤 중간값 칸을 터치하세요.</div>
+    <div class="quarters" aria-label="구간 25퍼센트와 75퍼센트 값">
+      <div class="quarter">
+        <div class="q-label">25% · 저점 쪽</div>
+        <div id="q25" class="q-value">—</div>
+        <button id="copy25" class="copy-btn" type="button" disabled>25% 복사</button>
+      </div>
+      <div class="quarter">
+        <div class="q-label">75% · 고점 쪽</div>
+        <div id="q75" class="q-value">—</div>
+        <button id="copy75" class="copy-btn" type="button" disabled>75% 복사</button>
+      </div>
+    </div>
 
-    <div class="actions"><button id="reset" type="button">초기화</button></div>
+    <div id="status" class="status" aria-live="polite">두 값을 입력하고 중간값을 터치하세요.</div>
 
-    <p class="foot">값 1과 값 2를 천천히 입력한 뒤 중간값 칸을 터치하세요.<br>계산과 동시에 결과가 클립보드에 복사됩니다.</p>
+    <div class="actions"><button id="reset" class="reset-btn" type="button">초기화</button></div>
+
+    <p class="foot">중간값은 자동 복사 · 25%/75%는 버튼으로 복사</p>
   </section>
 </main>
 
@@ -123,11 +163,16 @@
   const v2 = document.getElementById('v2');
   const resultBox = document.getElementById('resultBox');
   const result = document.getElementById('result');
+  const q25El = document.getElementById('q25');
+  const q75El = document.getElementById('q75');
+  const copy25Btn = document.getElementById('copy25');
+  const copy75Btn = document.getElementById('copy75');
   const status = document.getElementById('status');
   const reset = document.getElementById('reset');
 
   let statusTimer = null;
-  let lastCopied = '';
+  let q25Raw = null;
+  let q75Raw = null;
 
   const clean = s => String(s ?? '').trim().replaceAll(',', '').replace(/\s+/g,'');
   function parseNum(s){
@@ -136,17 +181,23 @@
     const n = Number(c);
     return Number.isFinite(n) ? n : null;
   }
-  function fmt(n){
-    const r = Math.abs(n) < 1e-12 ? 0 : Number(n.toPrecision(15));
-    return new Intl.NumberFormat('ko-KR',{maximumFractionDigits:12,useGrouping:true}).format(r);
+  function normalized(n){
+    return Math.abs(n) < 1e-12 ? 0 : Number(n.toPrecision(15));
   }
+  function fmt(n){
+    return new Intl.NumberFormat('ko-KR',{
+      maximumFractionDigits:12,useGrouping:true
+    }).format(normalized(n));
+  }
+  function raw(n){ return String(normalized(n)); }
+
   function show(msg,type='',hold=0){
     clearTimeout(statusTimer);
     status.textContent=msg;
     status.className='status'+(type?' '+type:'');
     if(hold>0){
       statusTimer=setTimeout(()=>{
-        status.textContent='값을 수정한 뒤 중간값 칸을 터치하면 다시 계산됩니다.';
+        status.textContent='수정 후 다시 중간값을 터치하세요.';
         status.className='status';
       },hold);
     }
@@ -155,75 +206,103 @@
   function fallbackCopy(text){
     try{
       const ta=document.createElement('textarea');
-      ta.value=text; ta.readOnly=true;
-      ta.style.position='fixed'; ta.style.opacity='0';
+      ta.value=text;ta.readOnly=true;
+      ta.style.position='fixed';ta.style.opacity='0';
       document.body.appendChild(ta);
-      ta.select(); ta.setSelectionRange(0,ta.value.length);
+      ta.select();ta.setSelectionRange(0,ta.value.length);
       const ok=document.execCommand('copy');
-      ta.remove();
-      return ok;
+      ta.remove();return ok;
     }catch(e){return false}
   }
 
-  async function copyText(text){
-    if(!text || text===lastCopied) return true;
+  async function copyText(text,label){
     let ok=false;
     if(navigator.clipboard && window.isSecureContext){
-      try{ await navigator.clipboard.writeText(text); ok=true; }catch(e){}
+      try{await navigator.clipboard.writeText(text);ok=true}catch(e){}
     }
     if(!ok) ok=fallbackCopy(text);
+
     if(ok){
-      lastCopied=text;
-      show('✓ '+text+' 복사됨','ok',1700);
+      show('✓ '+label+' 복사됨','ok',1500);
       if(navigator.vibrate) navigator.vibrate(25);
       return true;
     }
-    show('중간값은 계산됐지만 자동 복사가 차단됐습니다. 결과를 눌러 복사하세요.','warn',3200);
+    show('복사가 차단됐습니다. 값을 길게 눌러 복사하세요.','warn',2800);
     return false;
+  }
+
+  function clearCalculated(){
+    result.textContent='터치';
+    q25El.textContent='—';
+    q75El.textContent='—';
+    q25Raw=null;q75Raw=null;
+    copy25Btn.disabled=true;
+    copy75Btn.disabled=true;
   }
 
   function calc(){
     const a=parseNum(v1.value), b=parseNum(v2.value);
     if(a===null || b===null){
-      result.textContent='—';
-      show(a===null?'첫 번째 값을 입력하세요.':'두 번째 값을 입력하세요.');
+      clearCalculated();
+      show(a===null?'값 1을 입력하세요.':'값 2를 입력하세요.','warn',1800);
       return;
     }
+
+    const low=Math.min(a,b);
+    const high=Math.max(a,b);
+    const range=high-low;
     const m=(a+b)/2;
+    const q25=low+range*0.25;
+    const q75=low+range*0.75;
+
     result.textContent=fmt(m);
-    copyText(String(Number(m.toPrecision(15))));
+    q25El.textContent=fmt(q25);
+    q75El.textContent=fmt(q75);
+    q25Raw=raw(q25);
+    q75Raw=raw(q75);
+    copy25Btn.disabled=false;
+    copy75Btn.disabled=false;
+
+    copyText(raw(m),'중간값 '+fmt(m));
   }
 
   function markReady(){
-    lastCopied='';
-    result.textContent='터치';
+    clearCalculated();
     const a=parseNum(v1.value), b=parseNum(v2.value);
-    if(a===null && b===null) show('값 1과 값 2를 입력한 뒤 중간값 칸을 터치하세요.');
+    if(a===null && b===null) show('두 값을 입력하고 중간값을 터치하세요.');
     else if(a===null) show('값 1을 입력하세요.');
     else if(b===null) show('값 2를 입력하세요.');
-    else show('입력 완료 · 중간값 칸을 터치하면 계산 + 복사됩니다.');
+    else show('입력 완료 · 중간값을 터치하세요.');
   }
 
   v1.addEventListener('input',markReady);
   v2.addEventListener('input',markReady);
 
+  resultBox.addEventListener('click',calc);
+  resultBox.addEventListener('keydown',e=>{
+    if(e.key==='Enter'||e.key===' '){e.preventDefault();calc()}
+  });
+
+  copy25Btn.addEventListener('click',e=>{
+    e.stopPropagation();
+    if(q25Raw!==null) copyText(q25Raw,'25% 값 '+q25El.textContent);
+  });
+  copy75Btn.addEventListener('click',e=>{
+    e.stopPropagation();
+    if(q75Raw!==null) copyText(q75Raw,'75% 값 '+q75El.textContent);
+  });
+
   reset.addEventListener('click',()=>{
-    lastCopied='';
-    v1.value=''; v2.value=''; result.textContent='터치';
-    show('값 1과 값 2를 입력한 뒤 중간값 칸을 터치하세요.');
+    v1.value='';v2.value='';
+    clearCalculated();
+    show('두 값을 입력하고 중간값을 터치하세요.');
     v1.focus({preventScroll:true});
   });
 
-  resultBox.addEventListener('click',calc);
-  resultBox.addEventListener('keydown',e=>{
-    if(e.key==='Enter' || e.key===' '){
-      e.preventDefault();
-      calc();
-    }
-  });
-
   function focusFirst(){
-    setTimeout(()=>{ if(!v1.value && !v2.value){v1.focus({preventScroll:true});v1.select()} },180);
+    setTimeout(()=>{
+      if(!v1.value && !v2.value){v1.focus({preventScroll:true});v1.select()}
+    },180);
   }
   window.addEventListener('pageshow',focusFirst);
 

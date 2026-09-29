@@ -1,4 +1,4 @@
-const CACHE = 'midpoint-pwa-v3';
+const CACHE = 'midpoint-pwa-v4';
 const ASSETS = [
   './',
   './index.html',
