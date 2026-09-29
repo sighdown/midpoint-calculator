@@ -58,8 +58,10 @@
     input::placeholder{color:var(--sub);opacity:.55}
     .result{
       margin-top:20px;padding:20px 16px;border-radius:20px;border:2px solid var(--accent);
-      background:var(--accentSoft);text-align:center;
+      background:var(--accentSoft);text-align:center;cursor:pointer;
+      -webkit-tap-highlight-color:transparent;transition:transform .08s ease,filter .12s ease;
     }
+    .result:active{transform:scale(.985);filter:brightness(.96)}
     .result-label{color:var(--sub);font-size:16px;font-weight:850;margin-bottom:6px}
     .result-value{
       min-height:1.15em;font-size:clamp(44px,13vw,68px);line-height:1.1;font-weight:950;
@@ -86,7 +88,7 @@
 <main class="wrap">
   <section class="card">
     <h1>중간값 계산기</h1>
-    <p class="desc">두 값을 입력하면 중간값을 즉시 계산하고 자동 복사합니다.</p>
+    <p class="desc">두 값을 입력한 뒤 중간값 칸을 터치하면 계산하고 자동 복사합니다.</p>
 
     <div class="field">
       <label for="v1">값 1</label>
@@ -100,16 +102,16 @@
              autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="두 번째 값">
     </div>
 
-    <div class="result" aria-live="polite">
-      <div class="result-label">중간값</div>
-      <div id="result" class="result-value">—</div>
+    <div id="resultBox" class="result" role="button" tabindex="0" aria-label="중간값 계산하기" aria-live="polite">
+      <div class="result-label">중간값 · 터치해서 계산</div>
+      <div id="result" class="result-value">터치</div>
     </div>
 
-    <div id="status" class="status" aria-live="polite">첫 번째 값을 입력하세요.</div>
+    <div id="status" class="status" aria-live="polite">값 1과 값 2를 입력한 뒤 중간값 칸을 터치하세요.</div>
 
     <div class="actions"><button id="reset" type="button">초기화</button></div>
 
-    <p class="foot">값 1 입력 후 약 0.9초 멈추면 값 2로 이동합니다.<br>결과를 누르면 수동 복사도 됩니다.</p>
+    <p class="foot">값 1과 값 2를 천천히 입력한 뒤 중간값 칸을 터치하세요.<br>계산과 동시에 결과가 클립보드에 복사됩니다.</p>
   </section>
 </main>
 
@@ -119,11 +121,11 @@
 
   const v1 = document.getElementById('v1');
   const v2 = document.getElementById('v2');
+  const resultBox = document.getElementById('resultBox');
   const result = document.getElementById('result');
   const status = document.getElementById('status');
   const reset = document.getElementById('reset');
 
-  let moveTimer = null;
   let statusTimer = null;
   let lastCopied = '';
 
@@ -144,7 +146,7 @@
     status.className='status'+(type?' '+type:'');
     if(hold>0){
       statusTimer=setTimeout(()=>{
-        status.textContent='새 값을 입력하면 자동으로 다시 계산됩니다.';
+        status.textContent='값을 수정한 뒤 중간값 칸을 터치하면 다시 계산됩니다.';
         status.className='status';
       },hold);
     }
@@ -192,42 +194,31 @@
     copyText(String(Number(m.toPrecision(15))));
   }
 
-  function scheduleNext(){
-    clearTimeout(moveTimer);
-    if(parseNum(v1.value)===null){show('첫 번째 값을 입력하세요.');return}
-    show('입력이 끝나면 자동으로 값 2로 이동합니다.');
-    moveTimer=setTimeout(()=>{
-      v2.focus({preventScroll:true}); v2.select();
-      show('두 번째 값을 입력하세요.');
-    },900);
+  function markReady(){
+    lastCopied='';
+    result.textContent='터치';
+    const a=parseNum(v1.value), b=parseNum(v2.value);
+    if(a===null && b===null) show('값 1과 값 2를 입력한 뒤 중간값 칸을 터치하세요.');
+    else if(a===null) show('값 1을 입력하세요.');
+    else if(b===null) show('값 2를 입력하세요.');
+    else show('입력 완료 · 중간값 칸을 터치하면 계산 + 복사됩니다.');
   }
 
-  v1.addEventListener('input',()=>{lastCopied='';result.textContent='—';scheduleNext()});
-  v2.addEventListener('input',()=>{lastCopied='';calc()});
-
-  v1.addEventListener('keydown',e=>{
-    if(e.key==='Enter'){
-      e.preventDefault(); clearTimeout(moveTimer);
-      if(parseNum(v1.value)!==null){v2.focus();v2.select();show('두 번째 값을 입력하세요.')}
-    }
-  });
-  v2.addEventListener('keydown',e=>{
-    if(e.key==='Enter'){e.preventDefault();calc();v2.blur()}
-  });
+  v1.addEventListener('input',markReady);
+  v2.addEventListener('input',markReady);
 
   reset.addEventListener('click',()=>{
-    clearTimeout(moveTimer); lastCopied='';
-    v1.value=''; v2.value=''; result.textContent='—';
-    show('첫 번째 값을 입력하세요.');
+    lastCopied='';
+    v1.value=''; v2.value=''; result.textContent='터치';
+    show('값 1과 값 2를 입력한 뒤 중간값 칸을 터치하세요.');
     v1.focus({preventScroll:true});
   });
 
-  result.addEventListener('click',()=>{
-    const a=parseNum(v1.value), b=parseNum(v2.value);
-    if(a!==null && b!==null){
-      lastCopied='';
-      const m=(a+b)/2;
-      copyText(String(Number(m.toPrecision(15))));
+  resultBox.addEventListener('click',calc);
+  resultBox.addEventListener('keydown',e=>{
+    if(e.key==='Enter' || e.key===' '){
+      e.preventDefault();
+      calc();
     }
   });
 
